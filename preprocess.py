@@ -69,7 +69,9 @@ def html_extract_func(col):
 
 
 html_extract = udf(html_extract_func, StringType())
-train_feature = df.withColumn("html_extract", html_extract("description"))
+df = df.withColumn("description", html_extract("description"))
+df.orderBy("index").show(200)
+
 # train_feature.select("html_extract").show(truncate=False)
 #
 # # regexTokenizer = RegexTokenizer(inputCol="html_extract", outputCol="description_token", pattern="\\W")
