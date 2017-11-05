@@ -44,7 +44,7 @@ df = df.join(label, 'index')
 # label.agg(*[count_not_null(c) for c in label.columns]).show()
 # df.agg(*[count_not_null(c) for c in df.columns]).show()
 
-df.orderBy("index").show(200)
+df.orderBy("index").show(20)
 
 # count categories
 df.groupBy("category_1").count().orderBy("count", ascending=False).show(truncate=False)
@@ -55,22 +55,21 @@ df.groupBy("category_3").count().orderBy("count", ascending=False).show(truncate
 # filter products out of the main categories
 # main_category = df.groupBy("product_type").count().filter("count>5")
 # main_category.show(30)
-
 # train_feature = train_feature.join(main_category, train_feature.category_1 == main_category.category_1, 'inner')
 
-# from bs4 import BeautifulSoup
-# from pyspark.sql.functions import udf
-# from pyspark.ml.feature import Tokenizer, RegexTokenizer, StopWordsRemover, CountVectorizer
-#
-#
-# def html_extract_func(col):
-#     soup = BeautifulSoup(col)
-#     return soup.get_text()
-#     return (1 - col1 / col2) ** 2
-#
-#
-# html_extract = udf(html_extract_func, StringType())
-# train_feature = train_feature.withColumn("html_extract", html_extract("description"))
+from bs4 import BeautifulSoup
+from pyspark.sql.functions import udf
+from pyspark.ml.feature import Tokenizer, RegexTokenizer, StopWordsRemover, CountVectorizer
+
+
+def html_extract_func(col):
+    soup = BeautifulSoup(col)
+    return soup.get_text()
+    return (1 - col1 / col2) ** 2
+
+
+html_extract = udf(html_extract_func, StringType())
+train_feature = df.withColumn("html_extract", html_extract("description"))
 # train_feature.select("html_extract").show(truncate=False)
 #
 # # regexTokenizer = RegexTokenizer(inputCol="html_extract", outputCol="description_token", pattern="\\W")
