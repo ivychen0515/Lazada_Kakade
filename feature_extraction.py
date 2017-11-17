@@ -24,11 +24,14 @@ df = spark.read.csv("Clean_Data_Frame.csv", escape='"', header=True)
 st = SnowballStemmer('english')
 nlp = spacy.load('en')
 
+import spacy_func
+spark.Sparkcontext.addPyFile('spacy_func.py')
+
 title_clean = udf(remove_char, StringType())
 df = df.withColumn("new_title", title_clean("title"))
 df.select("title", "new_title").show(n=40, truncate=False)
 
-# title_ent = udf(ent, ArrayType(StringType()))
+title_ent = udf(spacy_func.spacy_func, ArrayType(StringType()))
 # df = df.withColumn("title_ent", title_ent("title"))
 # df.select("title", "title_ent").show(n=40, truncate=True)
 
