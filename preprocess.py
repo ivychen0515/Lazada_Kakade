@@ -33,7 +33,8 @@ feature_struct = StructType(fields=feature_schema)
 spark = SparkSession.builder.appName("kakade").getOrCreate()
 
 # country sku_id title category_1 category_2 category_3 short_description price product_type
-df = spark.read.csv("Data/training/data_train.csv", escape='"', schema=feature_struct).repartition(1).withColumn("index", monotonically_increasing_id() + 1)
+#df = spark.read.csv("Data/training/data_train.csv", escape='"', schema=feature_struct).repartition(1).withColumn("index", monotonically_increasing_id() + 1)
+df = spark.read.csv("Data/validation/data_valid.csv", escape='"', schema=feature_struct).repartition(1).withColumn("index", monotonically_increasing_id() + 1)
 # w = Window().partitionBy().orderBy(col("id"))  # No partition
 # df = df.withColumn("index", row_number().over(w))  # escape quote in quote
 
@@ -84,4 +85,4 @@ df.orderBy("index").show(n=20, truncate=False)
 # train_feature.select("price", "org_price").show()
 
 # # output csv file
-# df.orderBy("index").repartition(1).write.csv("clean_data_frame", escape='"', header=True)
+df.orderBy("index").repartition(1).write.csv("clean_data_frame_validation", escape='"', header=True)

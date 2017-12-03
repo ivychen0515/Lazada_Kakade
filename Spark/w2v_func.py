@@ -33,7 +33,7 @@ class w2v_func(object):
 #         x=x.split(' ')
 
         if not w2v_func.w2v_model:
-            w2v_model=gensim.models.KeyedVectors.load_word2vec_format('../GoogleNews-vectors-negative300.bin', binary=True)
+            w2v_model=gensim.models.KeyedVectors.load_word2vec_format('/home/kakade/Support_files/GoogleNews-vectors-negative300.bin', binary=True)
 #         vector = np.zeros(300)
 #         for word in x:
 #             try:
@@ -41,4 +41,4 @@ class w2v_func(object):
 #             except:
 #                 pass
 #         return vector
-        return w2v_model.word_vec(x)
+        return w2v_func.w2v_model.word_vec(x)
