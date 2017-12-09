@@ -6,6 +6,11 @@ import re
 import unicodedata
 from sklearn.linear_model import LogisticRegression as lg
 from sklearn import model_selection
+from sklearn.metrics import confusion_matrix as cm
+from sklearn.ensemble import RandomForestClassifier as rfc
+from nltk.corpus import wordnet as wn
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 
 def read_vectors(filename):
     in_file = open(filename, 'r')
@@ -21,13 +26,19 @@ def read_file(filename):
     dictionary = []
     title = []
     descr = []
-    clarity = in_file['clarity']
+    clarity = []
+    stop_words = set(stopwords.words('english'))
     for i in range(row):
         dfl = in_file.iloc[i]
-        tl = str(dfl['title'])
-        dl = str(dfl['description'])
-        tl = sentence = re.split(',| |\(|\)|-|:|\&|\.|\+|;|/|"', unicodedata.normalize('NFKD', tl))
-        dl = sentence = re.split(',| |\(|\)|-|:|\&|\.|\+|;|/|"', unicodedata.normalize('NFKD', dl))
+        cat = str(dfl['category_1'])
+        if cat != 'Fashion':
+            continue
+        tl = word_tokenize(unicodedata.normalize('NFKD', str(dfl['title'])))
+        tl = [w for w in tl if not w in stop_words]
+        dl = word_tokenize(unicodedata.normalize('NFKD', str(dfl['description'])))
+        dl = [w for w in dl if not w in stop_words]
+        #tl = re.split(',| |\(|\)|-|:|\&|\.|\+|;|/|"|�', unicodedata.normalize('NFKD', tl))
+        #dl = re.split(',| |\(|\)|-|:|\&|\.|\+|;|/|"|�', unicodedata.normalize('NFKD', dl))
         tl = [x for x in tl if x != None and x != '']
         dl = [x for x in dl if x != None and x != '']
         sentence = []
@@ -36,12 +47,13 @@ def read_file(filename):
         title.append(tl)
         descr.append(dl)
         dictionary.append(sentence)
+        clarity.append(dfl['clarity'])
     return dictionary, title, descr, clarity
 
 def generate_w2v_model(filename, file_dict):
     w2v = gensim.models.Word2Vec(size=200, min_count=1)
     w2v.build_vocab(file_dict)
-    print('start training')
+    print('start training w2v model')
     w2v.train(file_dict, total_examples=w2v.corpus_count, epochs=w2v.iter)
     w2v.save(filename)
     return w2v
@@ -71,7 +83,10 @@ def cal_similarity(model, title, descr):
                 except KeyError:
                     print(x,' & ',y,'does not exist')
                 else:
-                    one_word.append(l)
+                    if np.isnan(l):
+                        one_word.append(0)
+                    else:
+                        one_word.append(l)
             one_word.sort(reverse=True)
             if (len(title[i])<5):
                 line.extend(one_word)
@@ -87,7 +102,7 @@ def cal_similarity(model, title, descr):
             if (np.isnan(x)):
                 nan.append(i)
                 break
-        similarity.append(line[0:10])
+        similarity.append(line[0:5])
     # print(list(map(lambda x: np.mean(x), similarity)))
     print('titles has less than 5 words:')
     for i in outlier:
@@ -98,49 +113,45 @@ def cal_similarity(model, title, descr):
     return similarity
 
 if __name__ == "__main__":
-    ## read title vector
+    # # read title vector
     # path_titleVector = "../train_title_vectors.txt"
     # title_vectors = read_vectors(path_title_vector)
 
-    ## read clean raw data
+    # # read clean raw data
     path_dataFrame = "../Clean_Data_Frame.csv"
     dictionary, title, descr, clarity = read_file(path_dataFrame)
 
-    ## generate word2vec model
-    # path_model = 'w2v_model.txt'
-    # w2v_model = generate_w2v_model(path_model, dictionary)
+    # # generate word2vec model
+    path_model = 'w2v_model.txt'
+    w2v_model = generate_w2v_model(path_model, dictionary)
 
-    ## load word2vec model and calculate similarity
+    # load word2vec model and calculate similarity
     w2v_model = gensim.models.Word2Vec.load('w2v_model.txt')
     similarity = cal_similarity(w2v_model, title, descr)
-    ts = open('similarity.txt','wb')
-    pickle.dump(similarity, ts)
 
-    ## data preparation for training
+    # data preparation for training
     train_title = np.array(similarity)
     train_clarity = np.array(clarity)
     np.savetxt('training_similarity.npy', train_title)
     np.savetxt('training_clarity.npy', train_clarity)
 
-    ## cross validation preparation
-    # train_title = np.loadtxt('training_similarity.npy')
-    # train_clarity = np.loadtxt('training_clarity.npy')
-    # cv = model_selection.KFold(10)
-    # for i in range(len(train_title)):
-    #     for j in range(5):
-    #         if np.isnan(train_title[i][j]):
-    #             train_title[i][j] = 0
-    # accuracy = 0
+    # cross validation preparation
+    rain_title = np.loadtxt('training_similarity.npy')
+    train_clarity = np.loadtxt('training_clarity.npy')
+    cv = model_selection.KFold(10)
+    accuracy = 0
+    distribution(train_clarity)
 
-    ## start training logistic regression model
-    # for train_n, test_n in cv.split(train_title):
-    #     train_x = train_title[train_n]
-    #     train_y = train_clarity[train_n]
-    #     test_x = train_title[test_n]
-    #     test_y = train_clarity[test_n]
-    #     l_model = lg()
-    #     l_model.fit(train_x, train_y)
-    #     predicted_y = l_model.predict(test_x)
-    #     mse = list(map(lambda x,y: (x-y)*(x-y), test_y, predicted_y))
-    #     accuracy += np.sqrt(np.mean(mse))
-    # print(accuracy/cv.get_n_splits())
+    # start training logistic regression model
+    for train_n, test_n in cv.split(train_title):
+        train_x = train_title[train_n]
+        train_y = train_clarity[train_n]
+        test_x = train_title[test_n]
+        test_y = train_clarity[test_n]
+        l_model = lg()
+        l_model.fit(train_x, train_y)
+        predicted_y = l_model.predict(test_x)
+        mse = list(map(lambda x,y: (x-y)*(x-y), test_y, predicted_y))
+        accuracy += np.sqrt(np.mean(mse))
+        print(cm(test_y, predicted_y))
+    print(accuracy/cv.get_n_splits())
