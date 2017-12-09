@@ -111,9 +111,19 @@ def get_color():
     s1 = set(c2)
     s.update(s1)
     return s
+    
+def get_type():
+    type_set = set()
+    data = read_data('../data/Title_Word_entity.bin')
+    for title in data:
+        for item in title:
+        type_set.add(item[0])
+    print(type_set)
+    return type_set
+    
 
 def count_feature():
-    data = read_data('../data/raw.bin')
+    data = read_data('../data/Title_Word_entity.bin')
     color_dict = get_color()
     brand_dict = get_brand()
     total_counts = []
@@ -180,7 +190,7 @@ def join_feature(counts, scores):
                 'count_color',   'freq_color',
                 'count_brand',   'freq_brand',
                 'count_words',   'count_chars',
-                'title_cat_dup', 'w2v_score', 'tf_score', 'sp_score']
+                'title_cat_dup', 'title_des_dup', 'w2v_score', 'tf_score', 'sp_score']
     
     feature_df = pd.DataFrame(feature, columns=columns)
     print(feature_df.shape)
@@ -203,11 +213,11 @@ if __name__ == '__main__':
     # with open('../data/w2v_score.bin', 'rb') as f:
     #     w2v_score=pickle.load(f)
 
-    # print('Spacy similarity calculation')
-    # sp_score = spacy_similarity(title, des)
-    # print(sp_score)
-    # with open('../data/sp_score.bin', 'wb') as f:
-    #     pickle.dump(sp_score, f)
+    print('Spacy similarity calculation')
+    sp_score = spacy_similarity(title, des)
+    print(sp_score)
+    with open('../data/sp_score.bin', 'wb') as f:
+        pickle.dump(sp_score, f)
     # with open('../data/sp_score.bin', 'rb') as f:
     #     sp_score=pickle.load(f)
 
@@ -219,8 +229,7 @@ if __name__ == '__main__':
     # with open('../data/tf_score.bin', 'rb') as f:
     #     tf_score=pickle.load(f)
 
-    # total_scores = [title_cat_dup, w2v_score, tf_score, sp_score]
-    title_des_dup = count_title_des_dup(title, des)
-    print(title_des_dup)
+    # title_des_dup = count_title_des_dup(title, des)
+    # total_scores = [title_cat_dup, title_des_dup, w2v_score, tf_score, sp_score]
     # counts = count_feature()
     # join_feature(counts, total_scores)
