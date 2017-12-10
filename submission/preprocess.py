@@ -33,20 +33,23 @@ feature_struct = StructType(fields=feature_schema)
 spark = SparkSession.builder.appName("kakade").getOrCreate()
 
 # country sku_id title category_1 category_2 category_3 short_description price product_type
-#df = spark.read.csv("Data/training/data_train.csv", escape='"', schema=feature_struct).repartition(1).withColumn("index", monotonically_increasing_id() + 1)
-df = spark.read.csv("Data/validation/data_valid.csv", escape='"', schema=feature_struct).repartition(1).withColumn("index", monotonically_increasing_id() + 1)
-# w = Window().partitionBy().orderBy(col("id"))  # No partition
-# df = df.withColumn("index", row_number().over(w))  # escape quote in quote
+# train
+# df = spark.read.csv("Data/training/data_train.csv", escape='"', schema=feature_struct).repartition(1).withColumn("index", monotonically_increasing_id() + 1)
+# # w = Window().partitionBy().orderBy(col("id"))  # No partition
+# # df = df.withColumn("index", row_number().over(w))  # escape quote in quote
+# #
+# concise = spark.read.csv("Data/training/conciseness_train.labels").toDF("concise").withColumn("index", monotonically_increasing_id() + 1)
+# clarity = spark.read.csv("Data/training/clarity_train.labels").toDF("clarity").withColumn("index", monotonically_increasing_id() + 1)
+# label = concise.join(clarity, "index")
+# # w2 = Window().partitionBy("catagory_1").orderBy("index")
+# df = df.select("index", "title", "category_1", "category_2", "category_3", "description", "org_price", "product_type",
+#                "country")
+# df = df.join(label, 'index')
 
-concise = spark.read.csv("Data/training/conciseness_train.labels").toDF("concise").withColumn("index", monotonically_increasing_id() + 1)
-clarity = spark.read.csv("Data/training/clarity_train.labels").toDF("clarity").withColumn("index", monotonically_increasing_id() + 1)
-label = concise.join(clarity, "index")
+# test
+df = spark.read.csv("Data/testing/data_test.csv", escape='"', schema=feature_struct).repartition(1).withColumn("index", monotonically_increasing_id() + 1)
 df = df.select("index", "title", "category_1", "category_2", "category_3", "description", "org_price", "product_type",
                "country")
-
-# w2 = Window().partitionBy("catagory_1").orderBy("index")
-df = df.join(label, 'index')
-
 # # check null
 # df.agg(*[count_not_null(c) for c in df.columns]).show()
 # label.agg(*[count_not_null(c) for c in label.columns]).show()
@@ -84,5 +87,5 @@ df.orderBy("index").show(n=20, truncate=False)
 # train_feature.withColumn("price", when(train_feature.country == "my", M2P * train_feature.org_price).when(train_feature.country == "sg", S2P * train_feature.org_price).otherwise(train_feature.org_price))
 # train_feature.select("price", "org_price").show()
 
-# # output csv file
-df.orderBy("index").repartition(1).write.csv("clean_data_frame_validation", escape='"', header=True)
+# output csv file
+df.orderBy("index").repartition(1).write.csv("clean_validation_data_frame", escape='"', header=True)
