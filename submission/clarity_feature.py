@@ -114,7 +114,7 @@ def get_color():
     
 def get_type():
     type_set = set()
-    data = read_data('../data/Title_Word_entity.bin')
+    data = read_data('../../data/raw.bin')
     for title in data:
         for item in title:
             type_set.add(item[0])
@@ -123,7 +123,7 @@ def get_type():
     
 
 def count_feature():
-    data = read_data('../data/Title_Word_entity.bin')
+    data = read_data('../data/raw.bin')
     color_dict = get_color()
     brand_dict = get_brand()
     total_counts = []
@@ -226,6 +226,7 @@ if __name__ == '__main__':
     # print(sp_score)
     # with open('../data/sp_score.bin', 'wb') as f:
     #     pickle.dump(sp_score, f)
+    
     with open('../data/sp_score.bin', 'rb') as f:
         sp_score=pickle.load(f)
 
@@ -241,6 +242,6 @@ if __name__ == '__main__':
     counts = count_feature()
     words_length = np.array(counts)[:,12].tolist()
     total_scores = [max_words_topic, list(map(lambda x, y: x/y, max_words_topic, words_length)) , topic_num, title_cat_dup, title_des_dup, w2v_score, tf_score, sp_score]
-    join_feature(counts, total_scores)
+join_feature(counts, total_scores)
     
     # get_type()
