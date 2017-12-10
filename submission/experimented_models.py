@@ -171,14 +171,14 @@ if __name__ == '__main__':
 
 		'''**********NN Model A**********'''		
 		'''
-		accu, f1, cm, rmse = run_neural_network(len(feat_vec[0]), 2, feat_vec[traincv], clarity[traincv], feat_vec[testcv], clarity[testcv])
+		accu, f1, cm, rmse = run_neural_network(len(feat_vec[0]), 2, feat_vec[A_idx], clarity[A_idx], feat_vec[test_A_idx], clarity[test_A_idx])
 		test_f1 += f1 / 10
 		test_cm += cm / 10
 		test_rmse += rmse / 10
 		test_accuracy += accu / 10
 		'''
 		'''**********Model B**********'''
-		
+		'''
 		B_train_x = feat_vec[B_idx]
 		B_train_y = clarity[B_idx]
 		B_test_x = feat_vec[test_B_idx]
@@ -206,11 +206,11 @@ if __name__ == '__main__':
 		for i in range(len(outlier_predict)):
 			if outlier_predict[i] == -1:
 				outlier_predict[i] = 0
-
+		
 		test_rmse += sqrt(mean_squared_error(B_test_y, outlier_predict)) / 5
 		test_cm += np.array(confusion_matrix(B_test_y, outlier_predict), dtype='float') / 5
 		test_accuracy += accuracy_score(B_test_y, outlier_predict) / 5
-		
+		'''
 	print("Testing Accuracy:", test_accuracy)
 	print("Testing F1 Score:", test_f1)
 	print("Testing RSME:", test_rmse)
