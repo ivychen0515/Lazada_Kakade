@@ -3,6 +3,9 @@ Instruction:
 	Data files should be stored under ../data/ and all generated will be stored under ../data/
 	experimented_models.py and w2v_vector_generator.py are models that we experimented with and decided not to move on with.
 
+Code folder link: https://github.com/ivychen0515/Lazada_Kakade/tree/master/submission
+Data folder link: 
+
 Commands:	
 python preprocess.py  // get and save clean data frame from the original data set
 python feature_extraction.py // load clean data frame and generate partial features and prepare for further feature generation
