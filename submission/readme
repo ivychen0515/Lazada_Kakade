@@ -1,0 +1,1 @@
+run python3 w2v_vector_generator.py to generate word2vec vectors
