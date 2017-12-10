@@ -117,7 +117,7 @@ def get_type():
     data = read_data('../data/Title_Word_entity.bin')
     for title in data:
         for item in title:
-        type_set.add(item[0])
+            type_set.add(item[0])
     print(type_set)
     return type_set
     
@@ -148,15 +148,15 @@ def count_feature():
                 count_conj += 1
             if item[1] in color_dict:
                 count_color += 1
-            if item[1] in color_dict:
-                count_brand += 1
-        line = [count_num, count_num/count_words,
-            count_adj, count_adj/count_words,
-            count_noun, count_noun/count_words,
-            count_conj, count_conj/count_words,
-            count_color, count_color/count_words,
-            count_brand, count_brand/count_words,
-            count_words, count_chars]
+            if item[1] in brand_dict:
+                count_brand += 1 
+            line = [count_num, count_num/count_words, 
+                count_adj, count_adj/count_words,
+                count_noun, count_noun/count_words,
+                count_conj, count_conj/count_words,
+                count_color, count_color/count_words,
+                count_brand, count_brand/count_words,
+                count_words, count_chars]
         total_counts.append(line)
     return total_counts
 
@@ -190,6 +190,7 @@ def join_feature(counts, scores):
                 'count_color',   'freq_color',
                 'count_brand',   'freq_brand',
                 'count_words',   'count_chars',
+                'max_words_topic', 'max_words_topic_freq', 'topic_num',
                 'title_cat_dup', 'title_des_dup', 'w2v_score', 'tf_score', 'sp_score']
     
     feature_df = pd.DataFrame(feature, columns=columns)
@@ -204,32 +205,42 @@ if __name__ == '__main__':
     title = infile['new_title_stem'].tolist() 
     des = infile['new_des_stem'].tolist()
     title_cat_dup = infile['result'].tolist()
+    infile2 = pd.read_json('../data/LDA.json', lines=True)
+    lda = infile2['new'].tolist()
+    max_words_topic = []
+    topic_num = []
+    for t in lda:
+        max_words_topic.append(int(t[0]))
+        topic_num.append(int(t[1]))
 
-    # print('Word2Vec calculation')
+    print('Word2Vec calculation')
     # w2v_score = train_word2vec(title, des)
     # print(w2v_score)
     # with open('../data/w2v_score.bin', 'wb') as f:
     #     pickle.dump(w2v_score, f)
-    # with open('../data/w2v_score.bin', 'rb') as f:
-    #     w2v_score=pickle.load(f)
+    with open('../data/w2v_score.bin', 'rb') as f:
+        w2v_score=pickle.load(f)
 
     print('Spacy similarity calculation')
-    sp_score = spacy_similarity(title, des)
-    print(sp_score)
-    with open('../data/sp_score.bin', 'wb') as f:
-        pickle.dump(sp_score, f)
-    # with open('../data/sp_score.bin', 'rb') as f:
-    #     sp_score=pickle.load(f)
+    # sp_score = spacy_similarity(title, des)
+    # print(sp_score)
+    # with open('../data/sp_score.bin', 'wb') as f:
+    #     pickle.dump(sp_score, f)
+    with open('../data/sp_score.bin', 'rb') as f:
+        sp_score=pickle.load(f)
 
-    # print('TF*IDF similarity calculation')
+    print('TF*IDF similarity calculation')
     # tf_score = tfidf_similarity(title, des)
     # print(tf_score)
     # with open('../data/tf_score.bin', 'wb') as f:
     #     pickle.dump(tf_score, f)
-    # with open('../data/tf_score.bin', 'rb') as f:
-    #     tf_score=pickle.load(f)
+    with open('../data/tf_score.bin', 'rb') as f:
+        tf_score=pickle.load(f)
 
-    # title_des_dup = count_title_des_dup(title, des)
-    # total_scores = [title_cat_dup, title_des_dup, w2v_score, tf_score, sp_score]
-    # counts = count_feature()
-    # join_feature(counts, total_scores)
+    title_des_dup = count_title_des_dup(title, des)
+    counts = count_feature()
+    words_length = np.array(counts)[:,12].tolist()
+    total_scores = [max_words_topic, list(map(lambda x, y: x/y, max_words_topic, words_length)) , topic_num, title_cat_dup, title_des_dup, w2v_score, tf_score, sp_score]
+    join_feature(counts, total_scores)
+    
+    # get_type()
