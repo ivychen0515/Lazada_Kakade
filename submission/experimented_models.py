@@ -106,10 +106,10 @@ def evaluate_accuracy(predict, truth):
 	return float(count) / len(predict)
 
 if __name__ == '__main__':
-	category1, clarity, concise = getDataframe('./Clean_Data_Frame.csv')
-	train_vec = read_vectors('./train_title_vectors')
+	category1, clarity, concise = getDataframe('../data/Clean_Data_Frame.csv')
+	train_vec = read_vectors('../data/train_title_vectors')
 
-	feat_vec = pd.read_pickle('./final_features.bin')
+	feat_vec = pd.read_pickle('../data/final_features.bin')
 	drop_count = ['count_num', 'count_adj', 'count_noun', 'count_conj', 'count_color', 'count_brand', 'count_words', 'count_chars']
 	drop_score = ['w2v_score', 'tf_score', 'sp_score']
 	feat_vec = feat_vec.drop(drop_count + drop_score, axis=1)

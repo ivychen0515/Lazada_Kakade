@@ -41,9 +41,9 @@ def write_vectors(filename, title_vectors):
 	out_file.close()
 
 if __name__ == '__main__':
-	path = './Clean_Data_Frame.csv'
+	path = '../data/Clean_Data_Frame.csv'
 	train_x, train_clarity, train_concise = getDataframe(path)
-	w2v_model = gensim.models.KeyedVectors.load_word2vec_format('./GoogleNews-vectors-negative300.bin', binary=True)
+	w2v_model = gensim.models.KeyedVectors.load_word2vec_format('../data/GoogleNews-vectors-negative300.bin', binary=True)
 	desc_vectors = [title_vec(str(title), w2v_model) for title in train_x['description']]
 	title_vectors = [title_vec(title, w2v_model) for title in train_x['title']]
 	write_vectors('description_vector', desc_vectors)
