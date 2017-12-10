@@ -35,9 +35,9 @@ def train_word2vec(title, des):
     w2v = gensim.models.Word2Vec(size=200, min_count=1, window=5)
     w2v.build_vocab(dictionary)
     w2v.train(dictionary, total_examples=w2v.corpus_count, epochs=w2v.iter)
-    w2v.save('new_w2v.mdl')
+    w2v.save('../data/new_w2v.mdl')
 
-    # w2v = gensim.models.Word2Vec.load('new_w2v.mdl')
+    # w2v = gensim.models.Word2Vec.load('../data/new_w2v.mdl')
     score = []
     for i in range(len(title)):
         line = []
@@ -195,7 +195,7 @@ def join_feature(counts, scores):
     
     feature_df = pd.DataFrame(feature, columns=columns)
     print(feature_df.shape)
-    feature_df.to_pickle('final_features.bin')
+    feature_df.to_pickle('../data/final_features.bin')
 
 if __name__ == '__main__':
     # title = read_data('../data/raw_title.bin')

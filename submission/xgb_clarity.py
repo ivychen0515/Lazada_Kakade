@@ -23,7 +23,7 @@ for i in range(row):
     else:
         cat2.append(i)
 clarity = infile['clarity']
-feature = pd.read_pickle('final_features.bin').drop(['w2v_score'], axis=1)
+feature = pd.read_pickle('../data/final_features.bin').drop(['w2v_score'], axis=1)
 
 def test_model(model, cat):
     X = feature.values[cat]

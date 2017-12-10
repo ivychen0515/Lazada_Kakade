@@ -12,3 +12,11 @@ python feature_extraction.py // load clean data frame and generate partial featu
 python3 clarity_feature.py // load partial features and generate complete features and feature vectors for clarity data sets
 python3 xgb_clarity.py // load complete features and feature vectors for clarity data sets, and train clarity model
 python3 concise_v2.py // load partial features and further extract features for conciseness and run a model GBT to train and evaluate data set
+
+ALL the data required to run the code are stored in https://drive.google.com/open?id=1nGj_-Vjhbk3NU1-h7K6zYXb81DTs7mf6
+
+Please contact us if you have probelm running the code.
+
+zhaosukima@gmail.com
+syu93@ucla.edu
+ivycmn@gmail.com
